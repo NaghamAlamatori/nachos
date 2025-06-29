@@ -27,7 +27,7 @@ export const LoginForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
   console.log("🚀 handleSubmit triggered")
 
@@ -46,7 +46,8 @@ export const LoginForm = () => {
   try {
     const response = await API.post("/auth/login/", formData)
 
-    const { access, refresh } = response.data.data
+    const { access, refresh } = response.data // ✅ FIXED
+
     if (!access || !refresh) throw new Error("Missing tokens")
 
     localStorage.setItem("access_token", access)
@@ -54,22 +55,22 @@ export const LoginForm = () => {
 
     toast.success("Login successful!")
     navigate("/dashboard", { replace: true })
-  }catch (error: any) {
-  console.error("❌ Login error:", error)
 
-  if (error?.response?.status === 404) {
-    toast.error("Login endpoint not found (404). Check your backend URL.")
-    return
-  }
+  } catch (error: any) {
+    console.error("❌ Login error:", error?.response || error) // ✅ BETTER LOG
 
-  const message =
-    error?.response?.data?.detail ||
-    error?.response?.data?.message ||
-    "Incorrect email or password"
+    if (error?.response?.status === 404) {
+      toast.error("Login endpoint not found (404). Check your backend URL.")
+      return
+    }
 
-  toast.error(message)
-}
-finally {
+    const message =
+      error?.response?.data?.detail ||
+      error?.response?.data?.message ||
+      "Incorrect email or password"
+
+    toast.error(message)
+  } finally {
     setIsLoading(false)
   }
 }

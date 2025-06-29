@@ -17,8 +17,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return token ? children : <Navigate to="/login" replace />;
 };
 
-// flag 
-const isDev = true; // Change to false in production
 
 export default function App() {
   return (
@@ -32,9 +30,7 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            isDev ? (
-              <DashboardLayout />
-            ) : (
+          (
               <ProtectedRoute>
                 <DashboardLayout />
               </ProtectedRoute>

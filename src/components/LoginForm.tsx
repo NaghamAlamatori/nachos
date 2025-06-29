@@ -54,15 +54,22 @@ export const LoginForm = () => {
 
     toast.success("Login successful!")
     navigate("/dashboard", { replace: true })
-  } catch (error: any) {
-    console.error("❌ Login error:", error)
-    const message =
-      error?.response?.data?.detail ||
-      error?.response?.data?.message ||
-      "Something went wrong. Try again."
+  }catch (error: any) {
+  console.error("❌ Login error:", error)
 
-    toast.error(message)
-  } finally {
+  if (error?.response?.status === 404) {
+    toast.error("Login endpoint not found (404). Check your backend URL.")
+    return
+  }
+
+  const message =
+    error?.response?.data?.detail ||
+    error?.response?.data?.message ||
+    "Incorrect email or password"
+
+  toast.error(message)
+}
+finally {
     setIsLoading(false)
   }
 }

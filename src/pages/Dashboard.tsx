@@ -30,12 +30,6 @@ interface DashboardStats {
   active_users: number;
 }
 
-interface Movie {
-  id: number;
-  name: string;
-  genre: string;
-}
-
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     total_users: 0,
@@ -89,8 +83,6 @@ export default function DashboardPage() {
       value: stats.total_feedback,
     },
   ];
-
-  const chartColors = ["#f6d33d", "#ffbe0b", "#fb5607", "#ff006e", "#8338ec", "#3a86ff"];
 
   return (
     <div className="p-6 space-y-6">
@@ -168,4 +160,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

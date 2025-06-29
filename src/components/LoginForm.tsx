@@ -14,11 +14,10 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("access_token")
     if (token) {
-      console.log("User already logged in, redirecting...")
+      console.log("✅ Already logged in, redirecting...")
       navigate("/dashboard", { replace: true })
     }
   }, [navigate])
@@ -27,56 +26,56 @@ export const LoginForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
- const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault()
-  console.log("🚀 handleSubmit triggered")
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    console.log("🚀 handleSubmit triggered")
 
-  if (!formData.email.includes("@")) {
-    toast.error("Please enter a valid email address")
-    return
-  }
-
-  if (formData.password.length < 6) {
-    toast.error("Password must be at least 6 characters")
-    return
-  }
-
-  setIsLoading(true)
-
-  try {
-    console.log("🔍 Attempting to login to:", API.defaults.baseURL + "/auth/login/")
-
-    const response = await API.post("/auth/login/", formData)
-
-    const { access, refresh } = response.data 
-
-    if (!access || !refresh) throw new Error("Missing tokens")
-
-    localStorage.setItem("access_token", access)
-    localStorage.setItem("refresh_token", refresh)
-
-    toast.success("Login successful!")
-    navigate("/dashboard", { replace: true })
-
-  } catch (error: any) {
-    console.error("❌ Login error:", error?.response || error) 
-
-    if (error?.response?.status === 404) {
-      toast.error("Login endpoint not found (404). Check your backend URL.")
+    if (!formData.email.includes("@")) {
+      toast.error("Bruh, that's not an email.")
       return
     }
 
-    const message =
-      error?.response?.data?.detail ||
-      error?.response?.data?.message ||
-      "Incorrect email or password"
+    if (formData.password.length < 6) {
+      toast.error("Password’s gotta be at least 6 chars fam.")
+      return
+    }
 
-    toast.error(message)
-  } finally {
-    setIsLoading(false)
+    setIsLoading(true)
+
+    try {
+      console.log("🌐 POST to:", API.defaults.baseURL + "/auth/login/")
+
+      const response = await API.post("/auth/login/", formData)
+      const { access, refresh, user_id, username, email } = response.data.data || {}
+
+      if (!access || !refresh) throw new Error("🛑 Tokens missing in response.")
+
+      localStorage.setItem("access_token", access)
+      localStorage.setItem("refresh_token", refresh)
+      localStorage.setItem("user_id", user_id)
+      localStorage.setItem("username", username)
+      localStorage.setItem("email", email)
+
+      toast.success("🎉 Login successful!")
+      navigate("/dashboard", { replace: true })
+    } catch (error: any) {
+      console.error("❌ Login failed:", error?.response || error)
+
+      if (error?.response?.status === 404) {
+        toast.error("404: Login endpoint not found. Backend URL sus.")
+        return
+      }
+
+      const message =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        "Invalid email or password."
+
+      toast.error(message)
+    } finally {
+      setIsLoading(false)
+    }
   }
-}
-
 
   return (
     <form

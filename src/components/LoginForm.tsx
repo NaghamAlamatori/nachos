@@ -44,9 +44,11 @@ export const LoginForm = () => {
   setIsLoading(true)
 
   try {
+    console.log("🔍 Attempting to login to:", API.defaults.baseURL + "/auth/login/")
+
     const response = await API.post("/auth/login/", formData)
 
-    const { access, refresh } = response.data // ✅ FIXED
+    const { access, refresh } = response.data 
 
     if (!access || !refresh) throw new Error("Missing tokens")
 
@@ -57,7 +59,7 @@ export const LoginForm = () => {
     navigate("/dashboard", { replace: true })
 
   } catch (error: any) {
-    console.error("❌ Login error:", error?.response || error) // ✅ BETTER LOG
+    console.error("❌ Login error:", error?.response || error) 
 
     if (error?.response?.status === 404) {
       toast.error("Login endpoint not found (404). Check your backend URL.")

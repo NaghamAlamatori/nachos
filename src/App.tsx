@@ -8,7 +8,6 @@ import UsersPage from "./pages/Users";
 import GroupsPage from "./pages/Groups";
 import MoviesPage from "./pages/Movies";
 import FeedbackPage from "./pages/Feedback";
-import EditUserPage from "@/pages/EditUser"; // adjust path as needed
 
 
 
@@ -47,7 +46,6 @@ export default function App() {
           <Route path="groups" element={<GroupsPage />} />
           <Route path="movies" element={<MoviesPage />} />
           <Route path="feedback" element={<FeedbackPage />} />        
-          <Route path="edit-user/:id" element={<EditUserPage />} />
 
         </Route>
 

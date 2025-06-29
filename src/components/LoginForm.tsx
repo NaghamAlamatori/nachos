@@ -28,46 +28,45 @@ export const LoginForm = () => {
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log("🚀 handleSubmit triggered")
+  e.preventDefault()
+  console.log("🚀 handleSubmit triggered")
 
-    if (!formData.email.includes("@")) {
-      toast.error("Please enter a valid email address")
-      return
-    }
-
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters")
-      return
-    }
-
-    setIsLoading(true)
-
-    try {
-      console.log("📡 Sending request to /user/login/ with data:", formData)
-      const response = await API.post("/user/login/", formData)
-
-      const { access, refresh } = response.data
-      if (!access || !refresh) throw new Error("Missing tokens")
-
-      localStorage.setItem("access_token", access)
-      localStorage.setItem("refresh_token", refresh)
-
-      toast.success("Login successful!")
-      console.log("✅ Tokens saved, navigating to /dashboard")
-      navigate("/dashboard", { replace: true })
-    } catch (error: any) {
-      console.error("❌ Login error:", error)
-      const message =
-        error?.response?.data?.detail ||
-        error?.response?.data?.message ||
-        "Something went wrong. Try again."
-
-      toast.error(message)
-    } finally {
-      setIsLoading(false)
-    }
+  if (!formData.email.includes("@")) {
+    toast.error("Please enter a valid email address")
+    return
   }
+
+  if (formData.password.length < 6) {
+    toast.error("Password must be at least 6 characters")
+    return
+  }
+
+  setIsLoading(true)
+
+  try {
+    const response = await API.post("/auth/login/", formData)
+
+    const { access, refresh } = response.data.data
+    if (!access || !refresh) throw new Error("Missing tokens")
+
+    localStorage.setItem("access_token", access)
+    localStorage.setItem("refresh_token", refresh)
+
+    toast.success("Login successful!")
+    navigate("/dashboard", { replace: true })
+  } catch (error: any) {
+    console.error("❌ Login error:", error)
+    const message =
+      error?.response?.data?.detail ||
+      error?.response?.data?.message ||
+      "Something went wrong. Try again."
+
+    toast.error(message)
+  } finally {
+    setIsLoading(false)
+  }
+}
+
 
   return (
     <form

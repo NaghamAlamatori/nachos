@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import API from "@/lib/services/api";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogTrigger,
+  DialogContent,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type User = {
   id: number;
@@ -15,81 +16,85 @@ type User = {
   email: string;
   first_name: string;
   last_name: string;
+  birth_date?: string;
   is_active: boolean;
 };
 
-const dummyUsers: User[] = Array.from({ length: 60 }, (_, i) => ({
-  id: i + 1,
-  username: `user${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  first_name: `First${i + 1}`,
-  last_name: `Last${i + 1}`,
-  is_active: i % 2 === 0,
-}));
-
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [editUser, setEditUser] = useState<User | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    API.get("/user/all/")
-      .then((res) => setUsers(res.data))
-      .catch((err) => {
-        toast.error("Failed to load users, using fallback data", {
-          style: {
-            backgroundColor: "#f6d33d",
-            color: "#000",
-          },
-        });
-        console.error(err);
-        setUsers(dummyUsers);
-      });
+    const fetchUsers = async () => {
+      try {
+        // You'd ideally use /admin/users/ to get all IDs, but here we simulate 1-60
+        const responses = await Promise.all(
+          Array.from({ length: 60 }, (_, i) =>
+            API.get(`/admin/users/${i + 1}/`).catch(() => null)
+          )
+        );
+        const validUsers = responses
+          .filter(Boolean)
+          .map((res) => res?.data)
+          .filter((u) => !!u);
+        setUsers(validUsers);
+      } catch (err) {
+        console.error("Error fetching users", err);
+        toast.error("Error loading users.");
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await API.delete(`/user/delete/${deleteTarget.id}/`);
+      await API.delete(`/admin/users/${deleteTarget.id}/`);
       setUsers(users.filter((u) => u.id !== deleteTarget.id));
-      toast.success(`User ${deleteTarget.username} deleted`, {
-        style: {
-          backgroundColor: "#f6d33d",
-          color: "#000",
-        },
-      });
-    } catch (err) {
-      toast.error("Failed to delete user", {
-        style: {
-          backgroundColor: "#f6d33d",
-          color: "#000",
-        },
-      });
+      toast.success(`User ${deleteTarget.username} deleted`);
+    } catch {
+      toast.error("Delete failed");
     } finally {
       setDeleteTarget(null);
     }
   };
 
-  // Pagination logic
+  const handleEditSubmit = async () => {
+    if (!editUser) return;
+    try {
+      const { id, ...body } = editUser;
+      await API.patch(`/admin/users/${id}/`, body);
+      toast.success("User updated");
+      setEditUser(null);
+      setUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, ...body } : u))
+      );
+    } catch {
+      toast.error("Failed to update user");
+    }
+  };
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(users.length / usersPerPage);
 
   return (
-    <div>
+    <div className="p-4">
       <h1 className="text-3xl font-bold text-[#f6d33d] mb-6">Users</h1>
-      <div className="space-y-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentUsers.map((user) => (
           <div
             key={user.id}
-            className="bg-white shadow p-4 rounded-md flex justify-between items-center border border-yellow-100"
+            className="rounded-2xl shadow-xl border border-yellow-200 p-5 bg-white hover:scale-[1.01] transition-transform duration-200"
           >
-            <div>
-              <p className="font-semibold">{user.username}</p>
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold">{user.username}</h2>
               <p className="text-sm text-gray-600">{user.email}</p>
               <p className="text-sm">
                 {user.first_name} {user.last_name}
@@ -98,18 +103,88 @@ export default function UsersPage() {
                 Status: {user.is_active ? "✅ Active" : "❌ Inactive"}
               </p>
             </div>
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/edit-user/${user.id}`)}
-              >
-                Edit
-              </Button>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditUser(user)}
+                  >
+                    Edit
+                  </Button>
+                </DialogTrigger>
+
+                {editUser?.id === user.id && (
+                  <DialogContent className="bg-white text-black border border-yellow-400">
+                    <h2 className="text-xl font-bold mb-2 text-yellow-600">
+                      Edit User
+                    </h2>
+
+                    <div className="grid gap-4">
+                      <div>
+                        <Label>Email</Label>
+                        <Input
+                          value={editUser.email}
+                          onChange={(e) =>
+                            setEditUser({ ...editUser, email: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label>Username</Label>
+                        <Input
+                          value={editUser.username}
+                          onChange={(e) =>
+                            setEditUser({
+                              ...editUser,
+                              username: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label>First Name</Label>
+                        <Input
+                          value={editUser.first_name}
+                          onChange={(e) =>
+                            setEditUser({
+                              ...editUser,
+                              first_name: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label>Last Name</Label>
+                        <Input
+                          value={editUser.last_name}
+                          onChange={(e) =>
+                            setEditUser({
+                              ...editUser,
+                              last_name: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setEditUser(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button onClick={handleEditSubmit}>Save</Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                )}
+              </Dialog>
 
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-red-600 text-white hover:bg-red-700"
                     onClick={() => setDeleteTarget(user)}
                   >
                     Delete
@@ -117,7 +192,7 @@ export default function UsersPage() {
                 </DialogTrigger>
 
                 {deleteTarget?.id === user.id && (
-                  <DialogContent className="bg-[#ffffff] text-black border border-yellow-400">
+                  <DialogContent className="bg-white text-black border border-yellow-400">
                     <h2 className="text-lg font-semibold text-red-600">
                       Confirm Delete
                     </h2>

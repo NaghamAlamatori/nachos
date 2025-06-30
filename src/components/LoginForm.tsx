@@ -1,88 +1,83 @@
-'use client'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Eye, EyeOff, Lock, User } from "lucide-react"
-import { toast } from "sonner"
-import { useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import API from "@/lib/services/api"
+interface LoginResponse {
+  data: {
+    access: string;
+    refresh: string;
+    username: string;
+  };
+  message?: string;
+}
 
 export const LoginForm = () => {
-  const navigate = useNavigate()
-  const [formData, setFormData] = useState({ email: "", password: "" })
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token")
+    const token = localStorage.getItem("access_token");
     if (token) {
-      console.log("✅ Already logged in, redirecting...")
-      navigate("/dashboard", { replace: true })
+      console.log("✅ Already logged in, redirecting...");
+      navigate("/dashboard", { replace: true });
     }
-  }, [navigate])
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log("🚀 handleSubmit triggered")
+    e.preventDefault();
+    console.log("🚀 handleSubmit triggered");
 
-    if (!formData.email.includes("@")) {
-      toast.error("Bruh, that's not an email.")
-      return
+    const { email, password } = formData;
+
+    if (!email.includes("@")) {
+      toast.error("Bruh, that's not an email.");
+      return;
     }
 
-    if (formData.password.length < 6) {
-      toast.error("Password’s gotta be at least 6 chars fam.")
-      return
-    }
-
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      console.log("🌐 POST to:", API.defaults.baseURL + "/auth/login/")
+      const res = await fetch("https://nachos-backend-production.up.railway.app/api/v1/auth/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      const response = await API.post("/auth/login/", formData)
-      const { access, refresh, user_id, username, email } = response.data.data || {}
+      const result: LoginResponse = await res.json();
 
-      if (!access || !refresh) throw new Error("🛑 Tokens missing in response.")
-
-      localStorage.setItem("access_token", access)
-      localStorage.setItem("refresh_token", refresh)
-      localStorage.setItem("user_id", user_id)
-      localStorage.setItem("username", username)
-      localStorage.setItem("email", email)
-
-      toast.success("🎉 Login successful!")
-      navigate("/dashboard", { replace: true })
-    } catch (error: any) {
-      console.error("❌ Login failed:", error?.response || error)
-
-      if (error?.response?.status === 404) {
-        toast.error("404: Login endpoint not found. Backend URL sus.")
-        return
+      if (!res.ok) {
+        throw new Error(result.message || "Login failed");
       }
 
-      const message =
-        error?.response?.data?.detail ||
-        error?.response?.data?.message ||
-        "Invalid email or password."
+      // Store tokens
+      localStorage.setItem("access_token", result.data.access);
+      localStorage.setItem("refresh_token", result.data.refresh);
+      localStorage.setItem("username", result.data.username);
 
-      toast.error(message)
+      toast.success(`Welcome back, ${result.data.username}!`);
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <form
-      onSubmit={(e) => {
-        console.log("📨 onSubmit triggered")
-        handleSubmit(e)
-      }}
+      onSubmit={handleSubmit}
       className="space-y-4 w-full"
       autoComplete="off"
     >
@@ -132,5 +127,5 @@ export const LoginForm = () => {
         </Button>
       </div>
     </form>
-  )
-}
+  );
+};

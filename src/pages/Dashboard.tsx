@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -21,6 +20,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import API from "@/lib/services/api"; // Use the configured axios instance
 
 interface DashboardStats {
   total_users: number;
@@ -39,26 +39,42 @@ export default function DashboardPage() {
     active_users: 0,
   });
 
-  const [genreData, setGenreData] = useState<{ name: string; count: number }[]>([]);
+  const [genreData, setGenreData] = useState<{ name: string; count: number }[]>(
+    []
+  );
 
   useEffect(() => {
-    // Fetch Dashboard Stats
-    axios.get("/admin/dashboard/")
-      .then((res) => setStats(res.data))
-      .catch((err) => console.error("Dashboard stats error:", err));
-
-    // Fetch Movies & Count Genre Distribution
-    axios.get("/movies/")
+    // Fetch dashboard stats
+    API.get("https://nachos-backend-production.up.railway.app/api/v1/admin/dashboard/")
       .then((res) => {
-        const genreMap: Record<string, number> = {};
-        res.data.forEach((movie: any) => {
-          const genre = movie.genre || "Unknown";
-          genreMap[genre] = (genreMap[genre] || 0) + 1;
-        });
-        const genreArr = Object.entries(genreMap).map(([name, count]) => ({ name, count }));
-        setGenreData(genreArr);
+        setStats(res.data);
       })
-      .catch((err) => console.error("Movies fetch error:", err));
+      .catch((err) => {
+        console.error("Dashboard stats error:", err);
+      });
+
+    // Fetch movies for genre chart
+    API.get("https://nachos-backend-production.up.railway.app/api/v1/movies/")
+      .then((res) => {
+        const data = res.data;
+        if (Array.isArray(data)) {
+          const genreMap: Record<string, number> = {};
+          data.forEach((movie: any) => {
+            const genre = movie.genre || "Unknown";
+            genreMap[genre] = (genreMap[genre] || 0) + 1;
+          });
+          const genreArr = Object.entries(genreMap).map(([name, count]) => ({
+            name,
+            count,
+          }));
+          setGenreData(genreArr);
+        } else {
+          console.error("Movies data is not an array:", data);
+        }
+      })
+      .catch((err) => {
+        console.error("Movies fetch error:", err);
+      });
   }, []);
 
   const cards = [
@@ -94,7 +110,10 @@ export default function DashboardPage() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map(({ title, icon: Icon, value }) => (
-          <Card key={title} className="shadow-md border border-[#fdf6d4] bg-[#fffbe5]">
+          <Card
+            key={title}
+            className="shadow-md border border-[#fdf6d4] bg-[#fffbe5]"
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-md font-medium">{title}</CardTitle>
               <Icon className="w-6 h-6 text-[#f6d33d]" />
@@ -109,10 +128,12 @@ export default function DashboardPage() {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Active Users Chart */}
+        {/* Active Users Pie Chart */}
         <Card className="shadow-md border border-[#fdf6d4] bg-[#fffbe5]">
           <CardHeader>
-            <CardTitle className="text-md font-medium">Active vs Inactive Users</CardTitle>
+            <CardTitle className="text-md font-medium">
+              Active vs Inactive Users
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -140,7 +161,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Genre Distribution Chart */}
+        {/* Genre Distribution Bar Chart */}
         <Card className="shadow-md border border-[#fdf6d4] bg-[#fffbe5]">
           <CardHeader>
             <CardTitle className="text-md font-medium">Movies Per Genre</CardTitle>

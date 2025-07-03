@@ -6,8 +6,9 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import DashboardPage from "./pages/Dashboard";
 import UsersPage from "./pages/Users";
 import GroupsPage from "./pages/Groups";
+import PostsPage from "./pages/Posts";
 import MoviesPage from "./pages/Movies";
-import FeedbackPage from "./pages/Feedback";
+import UserCreationPage from "./pages/UserCreation";
 
 
 
@@ -41,7 +42,8 @@ export default function App() {
           <Route path="users" element={<UsersPage />} />
           <Route path="groups" element={<GroupsPage />} />
           <Route path="movies" element={<MoviesPage />} />
-          <Route path="feedback" element={<FeedbackPage />} />        
+          <Route path="posts" element={<PostsPage />} />
+          <Route path="usercreation" element={<UserCreationPage />} />        
 
         </Route>
 

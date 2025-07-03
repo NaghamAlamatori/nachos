@@ -2,11 +2,13 @@
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
-  Users,
+  User,
   Film,
   MessageCircle,
   UsersRound,
   LogOut,
+  StickyNote,
+  UserPlus,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -34,10 +36,12 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { name: "Users", icon: Users, path: "/dashboard/users" },
+  { name: "Users", icon: User, path: "/dashboard/users" },
   { name: "Groups", icon: UsersRound, path: "/dashboard/groups" },
   { name: "Movies", icon: Film, path: "/dashboard/movies" },
-  { name: "Feedback", icon: MessageCircle, path: "/dashboard/feedback" },
+  { name: "Posts", icon: StickyNote, path: "/dashboard/posts" },
+  { name: "Create User", icon: UserPlus, path: "/dashboard/usercreation" },
+
 ];
 
 export function Sidebar() {

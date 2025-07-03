@@ -65,7 +65,7 @@ export default function DashboardPage() {
     post_count: 0,
   });
 
-  const [monthlyData, setMonthlyData] = useState<{ month: string; users: number }[]>([]);
+  const [monthlyData] = useState<{ month: string; users: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

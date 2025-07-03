@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   User,
   Film,
-  MessageCircle,
   UsersRound,
   LogOut,
   StickyNote,

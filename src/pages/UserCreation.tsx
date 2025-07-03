@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { User, UserPlus, Shield, Crown, Mail, Calendar, Lock, Eye, EyeOff } from 'lucide-react';
+import {
+  User,
+  UserPlus,
+  Shield,
+  Crown,
+  Mail,
+  Calendar,
+  Lock,
+  Eye,
+  EyeOff
+} from 'lucide-react';
+import { useState } from 'react'
+import type { ChangeEvent } from 'react'
 
 const UserCreationPage = () => {
-  const [activeTab, setActiveTab] = useState('regular');
+  const [activeTab, setActiveTab] = useState<'regular' | 'staff' | 'superuser'>('regular');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const [formData, setFormData] = useState({
     email: '',
     username: '',
@@ -30,7 +41,7 @@ const UserCreationPage = () => {
     setErrorMessage('');
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -54,33 +65,28 @@ const UserCreationPage = () => {
     setSuccessMessage('');
     setErrorMessage('');
 
-    // Validate required fields
-    if (!formData.email || !formData.username || !formData.first_name || 
-        !formData.last_name || !formData.birth_date || !formData.password) {
+    if (!formData.email || !formData.username || !formData.first_name || !formData.last_name || !formData.birth_date || !formData.password) {
       setErrorMessage('Please fill in all required fields.');
       setIsLoading(false);
       return;
     }
 
     try {
-      // Simulate API call
       const response = await fetch(getApiEndpoint(), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
       });
 
       if (response.ok) {
-        const result = await response.json();
         setSuccessMessage(`${activeTab === 'regular' ? 'User' : activeTab === 'staff' ? 'Staff member' : 'Superuser'} created successfully!`);
         resetForm();
       } else {
         throw new Error('Failed to create user');
       }
     } catch (error) {
-      // For demo purposes, we'll show a success message
       setSuccessMessage(`${activeTab === 'regular' ? 'User' : activeTab === 'staff' ? 'Staff member' : 'Superuser'} would be created successfully!`);
       setTimeout(() => resetForm(), 2000);
     } finally {
@@ -96,7 +102,6 @@ const UserCreationPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
-      {/* Header */}
       <div className="max-w-4xl mx-auto mb-8">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full mb-4 shadow-lg">
@@ -107,9 +112,7 @@ const UserCreationPage = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-4xl mx-auto">
-        {/* Tab Navigation */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             {tabs.map((tab) => {
@@ -118,13 +121,13 @@ const UserCreationPage = () => {
                 <button
                   key={tab.id}
                   onClick={() => {
-                    setActiveTab(tab.id);
+                    setActiveTab(tab.id as 'regular' | 'staff' | 'superuser');
                     resetForm();
                   }}
                   className={`flex-1 p-4 rounded-lg border-2 transition-all duration-200 ${
                     activeTab === tab.id
                       ? 'border-yellow-400 bg-yellow-50 shadow-md'
-                      : 'border-gray-200 hover:border-yellow-300 hover:bg-yellow-25'
+                      : 'border-gray-200 hover:border-yellow-300 hover:bg-yellow-100'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-3 mb-2">
@@ -142,7 +145,6 @@ const UserCreationPage = () => {
           </div>
         </div>
 
-        {/* Form */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
             {activeTab === 'regular' && <User className="w-6 h-6 text-yellow-500" />}
@@ -151,13 +153,11 @@ const UserCreationPage = () => {
             Create {activeTab === 'regular' ? 'User' : activeTab === 'staff' ? 'Staff Member' : 'Superuser'}
           </h2>
 
-          {/* Success/Error Messages */}
           {successMessage && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-green-800 font-medium">{successMessage}</p>
             </div>
           )}
-          
           {errorMessage && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-800 font-medium">{errorMessage}</p>
@@ -165,7 +165,6 @@ const UserCreationPage = () => {
           )}
 
           <div className="space-y-6">
-            {/* Email and Username Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -182,7 +181,7 @@ const UserCreationPage = () => {
                   placeholder="user@example.com"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Username *
@@ -199,7 +198,6 @@ const UserCreationPage = () => {
               </div>
             </div>
 
-            {/* First Name and Last Name Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -215,7 +213,7 @@ const UserCreationPage = () => {
                   placeholder="John"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Last Name *
@@ -232,7 +230,6 @@ const UserCreationPage = () => {
               </div>
             </div>
 
-            {/* Birth Date and Password Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -248,7 +245,7 @@ const UserCreationPage = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-200"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Lock className="w-4 h-4 inline mr-2" />
@@ -262,12 +259,11 @@ const UserCreationPage = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-200"
-                    placeholder="Enter password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500 hover:text-yellow-500"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -275,38 +271,16 @@ const UserCreationPage = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex gap-4 pt-6">
+            <div className="text-right">
               <button
-                type="button"
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-semibold py-3 px-6 rounded-lg hover:from-yellow-500 hover:to-yellow-600 focus:ring-4 focus:ring-yellow-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg shadow transition-all duration-200"
               >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-5 h-5" />
-                    Create {activeTab === 'regular' ? 'User' : activeTab === 'staff' ? 'Staff Member' : 'Superuser'}
-                  </>
-                )}
-              </button>
-              
-              <button
-                type="button"
-                onClick={resetForm}
-                className="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 transition-all duration-200"
-              >
-                Reset
+                {isLoading ? 'Creating...' : 'Create Account'}
               </button>
             </div>
           </div>
-
-
         </div>
       </div>
     </div>

@@ -78,7 +78,7 @@ export function Sidebar() {
 };
 
   return (
-    <aside className="w-64 h-full bg-[#FFFBE5] shadow-md p-4 flex flex-col justify-between">
+    <aside className="w-64 h-full bg-[#ffffff] shadow-md p-4 flex flex-col justify-between">
       <div>
         {/* Logo */}
         <div className="flex items-center gap-2 mb-8">

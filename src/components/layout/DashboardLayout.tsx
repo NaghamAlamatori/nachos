@@ -8,7 +8,7 @@ export default function DashboardLayout() {
       <Sidebar />
 
       {/* Main content */}
-      <main className="flex-1 p-6 overflow-auto bg-[hsl(50,91%,91%)]">
+      <main className="flex-1 p-6 overflow-auto bg-[#fdf6d4]">
         <Outlet />
       </main>
     </div>

@@ -4,7 +4,7 @@ import {
   MessageCircle,
   UsersRound,
   LayoutDashboard,
-  TrendingUp,
+ 
   Tag,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -19,9 +19,6 @@ import {
   Pie,
   Cell,
   Legend,
-  LineChart,
-  Line,
-  CartesianGrid,
 } from "recharts";
 
 interface DashboardStats {
@@ -65,7 +62,7 @@ export default function DashboardPage() {
     post_count: 0,
   });
 
-  const [monthlyData] = useState<{ month: string; users: number }[]>([]);
+ // const [monthlyData] = useState<{ month: string; users: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -106,7 +103,7 @@ export default function DashboardPage() {
 
   // Calculate some derived data for charts
   const pieData = [
-    { name: 'Movies', value: stats.movie_count, color: '#f6d33d' },
+  //  { name: 'Movies', value: stats.movie_count, color: '#f6d33d' },
     { name: 'Users', value: stats.user_count, color: '#fbbf24' },
     { name: 'Groups', value: stats.group_count, color: '#f59e0b' },
     { name: 'Genres', value: stats.genre_count, color: '#d97706' },
@@ -132,7 +129,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 space-y-6 bg-white min-h-screen">
       <h1 className="text-3xl font-bold text-[#f6d33d] flex items-center gap-2">
         <LayoutDashboard className="w-7 h-7" />
         Dashboard
@@ -186,7 +183,7 @@ export default function DashboardPage() {
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={[
-                { name: 'Movies', count: stats.movie_count },
+            //    { name: 'Movies', count: stats.movie_count },
                 { name: 'Users', count: stats.user_count },
                 { name: 'Groups', count: stats.group_count },
                 { name: 'Genres', count: stats.genre_count },
@@ -197,40 +194,6 @@ export default function DashboardPage() {
                 <Tooltip />
                 <Bar dataKey="count" fill="#f6d33d" />
               </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        <Card className="border-yellow-200 bg-yellow-50">
-          <CardHeader>
-            <CardTitle className="text-lg font-medium flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-yellow-600" />
-              User Growth Over Time
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#fef3c7" />
-                <XAxis dataKey="month" />
-                <YAxis allowDecimals={false} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#fefce8', 
-                    border: '1px solid #fef3c7' 
-                  }} 
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="users" 
-                  stroke="#f6d33d" 
-                  strokeWidth={3}
-                  dot={{ fill: '#f6d33d', strokeWidth: 2, r: 6 }}
-                  activeDot={{ r: 8, fill: '#f6d33d' }}
-                />
-              </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>

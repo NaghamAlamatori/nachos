@@ -1,5 +1,5 @@
 import { LoginForm } from "@/components/LoginForm";
-import logoImage from "@/assets/nachos-yellow-blob.png";
+import logoImage from "@/assets/nachos-yellow-blob.webp";
 
 const Login = () => {
   return (

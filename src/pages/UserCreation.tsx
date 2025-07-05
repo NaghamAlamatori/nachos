@@ -101,7 +101,7 @@ const UserCreationPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
+    <div className="flex-1 p-6 overflow-auto bg-[#ffffff]">
       <div className="max-w-4xl mx-auto mb-8">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full mb-4 shadow-lg">
